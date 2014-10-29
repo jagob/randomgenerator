@@ -1,6 +1,6 @@
 # Randomgenerator - When in doubt, go random
 #
-# Place images in project folder 
+# Place images in project folder
 # dependencies: python2-pygame python2-numarray
 
 import pygame, sys, random
@@ -24,21 +24,23 @@ background = pygame.Surface(screen.get_size())
 background.fill((0,0,0))
 randomwinner = background
 
+playerOriginal = []
 player = []
 i = 0
 for files in os.listdir('.'):
-    if (files.endswith('.jpg') or files.endswith('.png')):
+    if (files.endswith('.jpg') or files.endswith('.png') or files.endswith('.bmp')):
         print "File #" + str(i) + ": " + files
-        player.append(pygame.image.load(files))
+        playerOriginal.append(pygame.image.load(files))
+        player.append(pygame.image.load(files)) # placeholder
         i += 1
 
 
-if (len(player) <= 5):
+if (len(playerOriginal) <= 5):
     boxsizel = WINDOWWIDTH/(5+1)
 else:
-    boxsizel = WINDOWWIDTH/(len(player)+1)
+    boxsizel = WINDOWWIDTH/(len(playerOriginal)+1)
 ymargin = 50
-gapsize = (WINDOWWIDTH-(len(player)*boxsizel))/(len(player)+1)
+gapsize = (WINDOWWIDTH-(len(playerOriginal)*boxsizel))/(len(playerOriginal)+1)
 boxsizeh = boxsizel
 xmargin = gapsize
 randomwinnerboxsize = WINDOWHEIGHT-3*ymargin-boxsizeh
@@ -46,14 +48,15 @@ randomwinnerboxsize = WINDOWHEIGHT-3*ymargin-boxsizeh
 hiborder = 2
 hiborderwidth = 2*hiborder
 
-rect = range(len(player))
+rect = range(len(playerOriginal))
 i = 0
-for players in player:
-    player[i] = pygame.transform.scale(player[i],(boxsizel,boxsizeh))
+for players in playerOriginal:
+    player[i] = pygame.transform.scale(playerOriginal[i],(boxsizel,boxsizeh))
     rect[i] = Rect(xmargin + i*boxsizel + i*gapsize,ymargin,boxsizel,boxsizeh)
     i+=1
     
 
+# Convert from list to array
 playerstatus = range(len(player))
 playerstatus = array(playerstatus)
 i = 0
@@ -61,17 +64,18 @@ for players in playerstatus:
     playerstatus[i] = True 
     i+=1
 
-# text
+# Display text
 GREEN = (0, 255, 0)
 HIGHLIGHTCOLOR = GREEN
-font = pygame.font.Font('freesansbold.ttf', 32)
-text = font.render('Random Generator!?!', True, GREEN)
-textroll = font.render('SPIN THAT SHIT ->', True, GREEN)
-textpos = text.get_rect(centerx=WINDOWWIDTH/2)
-# background.blit(text, textpos)
-randombutton=pygame.image.load("resources/gameicon.png")
-randombutton = pygame.transform.scale(randombutton,(100,100))
-rectrandom = Rect(350, 300, 100, 100 )
+font            = pygame.font.Font('freesansbold.ttf', 32)
+txt_title       = font.render('Random Generator!?!', True, GREEN)
+txt_title_pos   = txt_title.get_rect(centerx=WINDOWWIDTH/2)
+txt_spin        = font.render('SPIN THAT SHIT', True, GREEN)
+txt_spin_pos    = txt_spin.get_rect(centerx=WINDOWWIDTH/2,centery=300)
+randombutton    = pygame.image.load("resources/gameicon.png")
+randombutton    = pygame.transform.scale(randombutton,(175,175))
+randombutton_pos= randombutton.get_rect(centerx=WINDOWWIDTH/2,centery=450)
+rectrandom    = Rect(WINDOWWIDTH/2-randomwinnerboxsize/2,2*ymargin+boxsizeh,randomwinnerboxsize,randomwinnerboxsize)
 
 # Sounds
 soundObj = pygame.mixer.Sound('resources/beeps.wav')
@@ -84,10 +88,11 @@ def findwinner():
   while True:
       winner = random.randint(0,len(player)-1)
       if playerstatus[winner] == True:
-          return player[winner]
+          return playerOriginal[winner]
 
 # Game Loop
 while True: 
+   # Handle key input
    for event in pygame.event.get():
       if event.type == QUIT or event.type == KEYDOWN and event.key == K_ESCAPE:
             pygame.quit()
@@ -108,6 +113,7 @@ while True:
                 soundObj.play()
             i += 1
 
+   # Handle mouse input
    if pygame.mouse.get_pressed()[0] and rectrandom.collidepoint(event.pos):
       if playerstatus.max():
          randomwinner = findwinner()
@@ -116,23 +122,22 @@ while True:
       else:
          randomwinner = background
 
-# Draw Screen
+   # Draw Screen top down
    screen.blit(background, (0,0))
-   screen.blit(text, textpos)
+   screen.blit(txt_title, txt_title_pos)
    i = 0
    for players in player:
+      # Draw players
       screen.blit(player[i], (xmargin + i*boxsizel + i*gapsize,ymargin))
-      i += 1
-
-   i = 0
-   for players in player:
+      # Highligt active players
       if playerstatus[i]:
          pygame.draw.rect(screen, HIGHLIGHTCOLOR, (rect[i].left - hiborder, rect[i].top - hiborder, rect[i].width + 2*hiborder, rect[i].height + 2*hiborder), hiborderwidth)
       i += 1
 
-   screen.blit(textroll, (xmargin,300))
-   screen.blit(randombutton,(350,250))
-   screen.blit(randomwinner,(WINDOWWIDTH/2-randomwinnerboxsize/2,2*ymargin+boxsizeh))
+   screen.blit(txt_spin, txt_spin_pos)
+   screen.blit(randombutton, randombutton_pos)
+   if randomwinner != background:
+      screen.blit(randomwinner,(WINDOWWIDTH/2-randomwinnerboxsize/2,2*ymargin+boxsizeh))
 
    pygame.display.update()
    fpsClock.tick(FPS)
