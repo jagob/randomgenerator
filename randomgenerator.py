@@ -3,9 +3,9 @@
 # Place images in project folder 
 # dependencies: python2-pygame python2-numarray
 
-import pygame, sys, random
+import pygame, sys, random, os
 from pygame.locals import *
-from numarray import *
+import numpy as np
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -55,7 +55,7 @@ for players in player:
     
 
 playerstatus = range(len(player))
-playerstatus = array(playerstatus)
+playerstatus = np.array(playerstatus)
 i = 0
 for players in playerstatus:
     playerstatus[i] = True 
