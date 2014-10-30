@@ -12,11 +12,11 @@ if not pygame.mixer: print 'Warning, sound disabled'
 
 pygame.init()
 
-# fps
+# FPS
 FPS = 50 # frames per second setting
 fpsClock = pygame.time.Clock()
 
-# images
+# Setup screen
 WINDOWWIDTH,WINDOWHEIGHT = 1366, 768
 screen = pygame.display.set_mode((WINDOWWIDTH,WINDOWHEIGHT),0,32)
 # background=pygame.image.load("flippyboard.png").convert()
@@ -24,17 +24,17 @@ background = pygame.Surface(screen.get_size())
 background.fill((0,0,0))
 randomwinner = background
 
+# Load players based on images in folder
 playerOriginal = []
-player = []
 i = 0
 for files in os.listdir('.'):
     if (files.endswith('.jpg') or files.endswith('.png') or files.endswith('.bmp')):
         print "File #" + str(i) + ": " + files
         playerOriginal.append(pygame.image.load(files))
-        player.append(pygame.image.load(files)) # placeholder
         i += 1
+player = range(i)
 
-
+# Calculate spacing
 if (len(playerOriginal) <= 5):
     boxsizel = WINDOWWIDTH/(5+1)
 else:
@@ -48,6 +48,7 @@ randomwinnerboxsize = WINDOWHEIGHT-3*ymargin-boxsizeh
 hiborder = 2
 hiborderwidth = 2*hiborder
 
+# Preview pictures
 rect = range(len(playerOriginal))
 i = 0
 for players in playerOriginal:
@@ -55,7 +56,6 @@ for players in playerOriginal:
     rect[i] = Rect(xmargin + i*boxsizel + i*gapsize,ymargin,boxsizel,boxsizeh)
     i+=1
     
-
 # Convert from list to array
 playerstatus = range(len(player))
 playerstatus = array(playerstatus)
@@ -122,7 +122,7 @@ while True:
         else:
             randomwinner = background
 
-   # Draw Screen top down
+   # Draw screen from top down
     screen.blit(background, (0,0))
     screen.blit(txt_title, txt_title_pos)
     i = 0
