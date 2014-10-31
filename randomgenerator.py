@@ -113,7 +113,7 @@ while True:
                     soundObj.play()
                 i += 1
 
-   # Handle mouse input
+    # Handle mouse input
     if pygame.mouse.get_pressed()[0] and rectrandom.collidepoint(event.pos):
         if playerstatus.max():
             randomwinner = findwinner()
@@ -122,7 +122,7 @@ while True:
         else:
             randomwinner = background
 
-   # Draw screen from top down
+    # Draw screen from top down
     screen.blit(background, (0,0))
     screen.blit(txt_title, txt_title_pos)
     i = 0
