@@ -12,11 +12,11 @@ if not pygame.mixer: print 'Warning, sound disabled'
 
 pygame.init()
 
-# fps
+# FPS
 FPS = 50 # frames per second setting
 fpsClock = pygame.time.Clock()
 
-# images
+# Setup screen
 WINDOWWIDTH,WINDOWHEIGHT = 1366, 768
 screen = pygame.display.set_mode((WINDOWWIDTH,WINDOWHEIGHT),0,32)
 # background=pygame.image.load("flippyboard.png").convert()
@@ -24,17 +24,17 @@ background = pygame.Surface(screen.get_size())
 background.fill((0,0,0))
 randomwinner = background
 
+# Load players based on images in folder
 playerOriginal = []
-player = []
 i = 0
 for files in os.listdir('.'):
     if (files.endswith('.jpg') or files.endswith('.png') or files.endswith('.bmp')):
         print "File #" + str(i) + ": " + files
         playerOriginal.append(pygame.image.load(files))
-        player.append(pygame.image.load(files)) # placeholder
         i += 1
+player = range(i)
 
-
+# Calculate spacing
 if (len(playerOriginal) <= 5):
     boxsizel = WINDOWWIDTH/(5+1)
 else:
@@ -48,6 +48,7 @@ randomwinnerboxsize = WINDOWHEIGHT-3*ymargin-boxsizeh
 hiborder = 2
 hiborderwidth = 2*hiborder
 
+# Preview pictures
 rect = range(len(playerOriginal))
 i = 0
 for players in playerOriginal:
@@ -55,7 +56,6 @@ for players in playerOriginal:
     rect[i] = Rect(xmargin + i*boxsizel + i*gapsize,ymargin,boxsizel,boxsizeh)
     i+=1
     
-
 # Convert from list to array
 playerstatus = range(len(player))
 playerstatus = np.array(playerstatus)
@@ -85,59 +85,60 @@ musicPlaying = True
 # pygame.mixer.music.stop() 
 
 def findwinner():
-  while True:
-      winner = random.randint(0,len(player)-1)
-      if playerstatus[winner] == True:
-          return playerOriginal[winner]
+    while True:
+        winner = random.randint(0,len(player)-1)
+        if playerstatus[winner] == True:
+            return playerOriginal[winner]
 
 # Game Loop
 while True: 
-   # Handle key input
-   for event in pygame.event.get():
-      if event.type == QUIT or event.type == KEYDOWN and event.key == K_ESCAPE:
+    # Handle key input
+    for event in pygame.event.get():
+        if event.type == QUIT or event.type == KEYDOWN and event.key == K_ESCAPE:
             pygame.quit()
             sys.exit()
-      if event.type == KEYDOWN and event.key == K_m:
-         if musicPlaying:
-            pygame.mixer.music.stop()
-            musicPlaying = not musicPlaying
-         else:
-            pygame.mixer.music.play(-1, 0.0)
-            musicPlaying = not musicPlaying
+        if event.type == KEYDOWN and event.key == K_m:
+            if musicPlaying:
+                pygame.mixer.music.stop()
+                musicPlaying = not musicPlaying
+            else:
+                pygame.mixer.music.play(-1, 0.0)
+                musicPlaying = not musicPlaying
 
-      if event.type == MOUSEBUTTONDOWN:
-         i = 0
-         for players in player:
-            if rect[i].collidepoint(event.pos):
-                playerstatus[i] = not playerstatus[i]
-                soundObj.play()
-            i += 1
+        if event.type == MOUSEBUTTONDOWN:
+            i = 0
+            for players in player:
+                if rect[i].collidepoint(event.pos):
+                    playerstatus[i] = not playerstatus[i]
+                    soundObj.play()
+                i += 1
 
    # Handle mouse input
-   if pygame.mouse.get_pressed()[0] and rectrandom.collidepoint(event.pos):
-      if playerstatus.max():
-         randomwinner = findwinner()
-         randomwinner = pygame.transform.scale(randomwinner,(randomwinnerboxsize,randomwinnerboxsize))
-         pygame.time.delay(75)
-      else:
-         randomwinner = background
+    if pygame.mouse.get_pressed()[0] and rectrandom.collidepoint(event.pos):
+        if playerstatus.max():
+            randomwinner = findwinner()
+            randomwinner = pygame.transform.scale(randomwinner,(randomwinnerboxsize,randomwinnerboxsize))
+            pygame.time.delay(75)
+        else:
+            randomwinner = background
 
-   # Draw Screen top down
-   screen.blit(background, (0,0))
-   screen.blit(txt_title, txt_title_pos)
-   i = 0
-   for players in player:
-      # Draw players
-      screen.blit(player[i], (xmargin + i*boxsizel + i*gapsize,ymargin))
-      # Highligt active players
-      if playerstatus[i]:
-         pygame.draw.rect(screen, HIGHLIGHTCOLOR, (rect[i].left - hiborder, rect[i].top - hiborder, rect[i].width + 2*hiborder, rect[i].height + 2*hiborder), hiborderwidth)
-      i += 1
+   # Draw screen from top down
+    screen.blit(background, (0,0))
+    screen.blit(txt_title, txt_title_pos)
+    i = 0
+    for players in player:
+        # Draw players
+        screen.blit(player[i], (xmargin + i*boxsizel + i*gapsize,ymargin))
+        # Highligt active players
+        if playerstatus[i]:
+            pygame.draw.rect(screen, HIGHLIGHTCOLOR, (rect[i].left - hiborder, rect[i].top - hiborder, rect[i].width + 2*hiborder, rect[i].height + 2*hiborder), hiborderwidth)
+        i += 1
 
-   screen.blit(txt_spin, txt_spin_pos)
-   screen.blit(randombutton, randombutton_pos)
-   if randomwinner != background:
-      screen.blit(randomwinner,(WINDOWWIDTH/2-randomwinnerboxsize/2,2*ymargin+boxsizeh))
+    screen.blit(txt_spin, txt_spin_pos)
+    screen.blit(randombutton, randombutton_pos)
+    if randomwinner != background:
+        screen.blit(randomwinner,(WINDOWWIDTH/2-randomwinnerboxsize/2,2*ymargin+boxsizeh))
 
-   pygame.display.update()
-   fpsClock.tick(FPS)
+    pygame.display.update()
+    fpsClock.tick(FPS)
+# End of game loop
